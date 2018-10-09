@@ -372,15 +372,6 @@ in
       '';
     };
 
-    virusScanning = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to activate virus scanning. Note that virus scanning is _very_
-        expensive memory wise.
-      '';
-    };
-
     dkimSigning = mkOption {
       type = types.bool;
       default = true;
@@ -468,7 +459,6 @@ in
   };
 
   imports = [
-    ./mail-server/clamav.nix
     ./mail-server/dovecot.nix
     ./mail-server/environment.nix
     ./mail-server/kresd.nix

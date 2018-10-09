@@ -32,17 +32,7 @@ in
       socketActivation = false;
       extraConfig = ''
         extended_spam_headers = yes;
-      '' + (lib.optionalString cfg.virusScanning ''
-        antivirus {
-          clamav {
-            action = "reject";
-            symbol = "CLAM_VIRUS";
-            type = "clamav";
-            log_clean = true;
-            servers = "/run/clamav/clamd.ctl";
-          }
-        }
-      '');
+      '';
 
       workers.rspamd_proxy = {
         type = "proxy";
@@ -71,10 +61,6 @@ in
         includes = [];
       };
 
-    };
-    systemd.services.rspamd = {
-      requires = (lib.optional cfg.virusScanning "clamav-daemon.service");
-      after = (lib.optional cfg.virusScanning "clamav-daemon.service");
     };
 
     systemd.services.postfix = {
