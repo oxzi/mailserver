@@ -25,9 +25,6 @@ in
     networking.firewall = {
       allowedTCPPorts = [ 25 587 ]
         ++ lib.optional enableImap 143
-        ++ lib.optional enableImapSsl 993
-        ++ lib.optional enablePop3 110
-        ++ lib.optional enablePop3Ssl 995
         ++ lib.optional enableManageSieve 4190
         ++ lib.optional (certificateScheme == 3) 80;
     };

@@ -37,7 +37,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
               dhParamBitLength = 512;
-              rewriteMessageId = true;
 
               loginAccounts = {
                   "user1@example.com" = {
@@ -64,7 +63,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               };
 
               enableImap = true;
-              enableImapSsl = true;
             };
         };
       client = { nodes, config, pkgs, ... }: let
@@ -75,16 +73,12 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           echo grep '${clientIP}' "$@" >&2
           exec grep '${clientIP}' "$@"
         '';
-        check-mail-id = pkgs.writeScriptBin "check-mail-id" ''
-          #!${pkgs.stdenv.shell}
-          echo grep '^Message-ID:.*@mail.example.com>$' "$@" >&2
-          exec grep '^Message-ID:.*@mail.example.com>$' "$@"
-        '';
         test-imap-spam = pkgs.writeScriptBin "imap-mark-spam" ''
           #!${pkgs.python3.interpreter}
           import imaplib
 
-          with imaplib.IMAP4_SSL('${serverIP}') as imap:
+          with imaplib.IMAP4('${serverIP}') as imap:
+            imap.starttls()
             imap.login('user1@example.com', 'user1')
             imap.select()
             status, [response] = imap.search(None, 'ALL')
@@ -111,7 +105,8 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           #!${pkgs.python3.interpreter}
           import imaplib
 
-          with imaplib.IMAP4_SSL('${serverIP}') as imap:
+          with imaplib.IMAP4('${serverIP}') as imap:
+            imap.starttls()
             imap.login('user1@example.com', 'user1')
             imap.select('Junk')
             status, [response] = imap.search(None, 'ALL')
@@ -136,7 +131,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         '';
       in {
         environment.systemPackages = with pkgs; [
-          fetchmail msmtp procmail findutils grep-ip check-mail-id test-imap-spam test-imap-ham
+          fetchmail msmtp procmail findutils grep-ip test-imap-spam test-imap-ham
         ];
         environment.etc = {
           "root/.fetchmailrc" = {
@@ -308,7 +303,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         $client->succeed("cat ~/mail/* >&2");
         ## make sure our IP is _not_ in the email header
         $client->fail("grep-ip ~/mail/*");
-        $client->succeed("check-mail-id ~/mail/*");
       };
 
       subtest "have correct fqdn as sender", sub {

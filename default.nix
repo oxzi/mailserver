@@ -323,40 +323,8 @@ in
         Whether to enable imap / pop3. Both variants are only supported in the
         (sane) startTLS configuration. The ports are
 
-        110 - Pop3
         143 - IMAP
         587 - SMTP with login
-      '';
-    };
-
-    enableImapSsl = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable IMAPS, setting this option to true will open port 993
-        in the firewall.
-      '';
-    };
-
-    enablePop3 = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable POP3. Both variants are only supported in the (sane)
-        startTLS configuration. The ports are
-
-        110 - Pop3
-        143 - IMAP
-        587 - SMTP with login
-      '';
-    };
-
-    enablePop3Ssl = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable POP3S, setting this option to true will open port 995
-        in the firewall.
       '';
     };
 
@@ -432,16 +400,6 @@ in
       default = true;
       description = ''
         Runs a local DNS resolver (kresd) as recommended when running rspamd. This prevents your log file from filling up with rspamd_monitored_dns_mon entries.
-      '';
-    };
-
-    rewriteMessageId = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Rewrites the Message-ID's hostname-part of outgoing emails to the FQDN.
-        Please be aware that this may cause problems with some mail clients
-        relying on the original Message-ID.
       '';
     };
 

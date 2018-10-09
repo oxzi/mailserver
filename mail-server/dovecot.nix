@@ -53,7 +53,7 @@ in
     services.dovecot2 = {
       enable = true;
       enableImap = enableImap;
-      enablePop3 = enablePop3;
+      enablePop3 = false;
       enablePAM = false;
       enableQuota = true;
       mailGroup = vmailGroupName;

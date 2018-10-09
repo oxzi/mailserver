@@ -83,12 +83,6 @@ let
      /^X-Mailer:/            IGNORE
      /^User-Agent:/          IGNORE
      /^X-Enigmail:/          IGNORE
-  '' + lib.optionalString cfg.rewriteMessageId ''
-
-     # Replaces the user submitted hostname with the server's FQDN to hide the
-     # user's host or network.
-
-     /^Message-ID:\s+<(.*?)@.*?>/ REPLACE Message-ID: <$1@${cfg.fqdn}>
   '');
 
   inetSocket = addr: port: "inet:[${toString port}@${addr}]";
