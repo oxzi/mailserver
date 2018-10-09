@@ -24,7 +24,7 @@ let
   cert = if cfg.certificateScheme == 1
          then cfg.certificateFile
          else if cfg.certificateScheme == 2
-              then "${cfg.certificateDirectory}/cert-${cfg.fqdn.pem"
+              then "${cfg.certificateDirectory}/cert-${cfg.fqdn}.pem"
               else "";
 
   # key :: PATH
