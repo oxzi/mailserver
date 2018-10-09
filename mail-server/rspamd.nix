@@ -21,15 +21,15 @@ let
 
   postfixCfg = config.services.postfix;
   rspamdCfg = config.services.rspamd;
-  rspamdSocket = if rspamdCfg.socketActivation
-    then "rspamd-rspamd_proxy-1.socket"
-    else "rspamd.service";
+  rspamdSocket = "rspamd.service";
 in
 {
   config = with cfg; lib.mkIf enable {
+    # rmilter is enabled if rspamd is enabled. However, rmilter is deprecated
+    services.rmilter.enable = false;
+
     services.rspamd = {
       enable = true;
-      socketActivation = false;
       extraConfig = ''
         extended_spam_headers = yes;
       '';
@@ -58,7 +58,6 @@ in
           socket = "/run/rspamd/worker-controller.sock";
           mode = "0666";
         }];
-        includes = [];
       };
 
     };
