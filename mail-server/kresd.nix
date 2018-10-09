@@ -22,7 +22,7 @@ in
 {
   config = lib.mkIf (cfg.enable && cfg.localDnsResolver) {
     services.kresd.enable = true;
-    networking.nameservers = [ "127.0.0.1" ];
+    networking.nameservers = config.services.kresd.interfaces;
   };
 }
 
