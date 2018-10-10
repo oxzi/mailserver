@@ -19,13 +19,14 @@
 let
   cfg = config.mailserver;
 
-  postfixCfg = config.services.postfix;
-  rspamdCfg = config.services.rspamd;
-  rspamdSocket = "rspamd.service";
+  postfixCfg  = config.services.postfix;
+  dovecot2Cfg = config.services.dovecot2;
+  rspamdCfg   = config.services.rspamd;
 in
 {
   config = with cfg; lib.mkIf enable {
     # rmilter is enabled if rspamd is enabled. However, rmilter is deprecated
+    # https://github.com/NixOS/nixpkgs/issues/48011
     services.rmilter.enable = false;
 
     services.rspamd = {
@@ -35,12 +36,16 @@ in
       '';
 
       workers.rspamd_proxy = {
-        type = "proxy";
+        # The pipe_bin-scripts are not executed as the vmailUser and I havn't
+        # figured out how to change this. That's why the mode is 666.
         bindSockets = [{
-          socket = "/run/rspamd/rspamd-milter.sock";
-          mode = "0664";
+          socket = "/run/rspamd.sock";
+          mode = "0666";
+          group = rspamdCfg.group;
         }];
-        count = 1; # Do not spawn too many processes of this type
+
+        type = "proxy";
+        count = 4;  # Spawn more processes in self-scan mode
         extraConfig = ''
           milter = yes; # Enable milter mode
           timeout = 120s; # Needed for Milter usually
@@ -49,25 +54,21 @@ in
             default = yes; # Self-scan upstreams are always default
             self_scan = yes; # Enable self-scan
           }
+
+          max_retries = 5; # How many times master is queried in case of failure
+          discard_on_reject = false; # Discard message instead of rejection
+          quarantine_on_reject = false; # Tell MTA to quarantine rejected messages
+          spam_header = "X-Spam"; # Use the specific spam header
         '';
       };
-      workers.controller = {
-        type = "controller";
-        count = 1;
-        bindSockets = [{
-          socket = "/run/rspamd/worker-controller.sock";
-          mode = "0666";
-        }];
-      };
-
     };
 
     systemd.services.postfix = {
-      after = [ rspamdSocket ];
-      requires = [ rspamdSocket ];
+      after    = [ "rspamd.service" ];
+      requires = [ "rspamd.service" ];
     };
 
     users.extraUsers.${postfixCfg.user}.extraGroups = [ rspamdCfg.group ];
+    users.extraUsers.${dovecot2Cfg.mailUser}.extraGroups = [ rspamdCfg.group ];
   };
 }
-

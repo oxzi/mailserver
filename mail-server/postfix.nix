@@ -90,7 +90,7 @@ let
 
   smtpdMilters =
    (lib.optional cfg.dkimSigning "unix:/run/opendkim/opendkim.sock")
-   ++ [ "unix:/run/rspamd/rspamd-milter.sock" ];
+   ++ [ "unix:/run/rspamd.sock" ];
 
   policyd-spf = pkgs.writeText "policyd-spf.conf" (
     cfg.policydSPFExtraConfig
