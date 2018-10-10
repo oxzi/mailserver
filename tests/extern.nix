@@ -61,8 +61,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                 "single-alias@example.com" = "user1@example.com";
                 "multi-alias@example.com" = [ "user1@example.com" "user2@example.com" ];
               };
-
-              enableImap = true;
             };
         };
       client = { nodes, config, pkgs, ... }: let

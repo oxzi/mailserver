@@ -23,9 +23,7 @@ in
   config = with cfg; lib.mkIf enable {
 
     networking.firewall = {
-      allowedTCPPorts = [ 25 587 ]
-        ++ lib.optional enableImap 143
-        ++ lib.optional enableManageSieve 4190
+      allowedTCPPorts = [ 25 587 143 ]
         ++ lib.optional (certificateScheme == 3) 80;
     };
   };

@@ -52,7 +52,7 @@ in
   config = with cfg; lib.mkIf enable {
     services.dovecot2 = {
       enable = true;
-      enableImap = enableImap;
+      enableImap = true;
       enablePop3 = false;
       enablePAM = false;
       enableQuota = true;

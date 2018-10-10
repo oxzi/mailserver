@@ -316,30 +316,6 @@ in
       '';
     };
 
-    enableImap = mkOption {
-      type = types.bool;
-      default = true;
-      description = ''
-        Whether to enable imap / pop3. Both variants are only supported in the
-        (sane) startTLS configuration. The ports are
-
-        143 - IMAP
-        587 - SMTP with login
-      '';
-    };
-
-    enableManageSieve = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Whether to enable ManageSieve, setting this option to true will open
-        port 4190 in the firewall.
-
-        The ManageSieve protocol allows users to manage their Sieve scripts on
-        a remote server with a supported client, including Thunderbird.
-      '';
-    };
-
     dkimSigning = mkOption {
       type = types.bool;
       default = true;
