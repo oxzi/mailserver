@@ -395,11 +395,13 @@ in
       '';
     };
 
-    localDnsResolver = mkOption {
-      type = types.bool;
-      default = true;
+    localDnsResolverPort = mkOption {
+      type = types.int;
+      default = 5300;
       description = ''
-        Runs a local DNS resolver (kresd) as recommended when running rspamd. This prevents your log file from filling up with rspamd_monitored_dns_mon entries.
+        The port which kresd will be bound to.
+        A local DNS resolver (kresd) will be bound to this port and used by
+        rspamd as recommended.
       '';
     };
 

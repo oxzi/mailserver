@@ -20,9 +20,12 @@ let
   cfg = config.mailserver;
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.localDnsResolver) {
+  config = lib.mkIf (cfg.enable) {
     services.kresd.enable = true;
-    networking.nameservers = config.services.kresd.interfaces;
+
+    systemd.sockets.kresd.socketConfig.ListenDatagram = [
+      "[::1]:${toString cfg.localDnsResolverPort}"
+    ];
   };
 }
 

@@ -22,6 +22,18 @@ let
   postfixCfg  = config.services.postfix;
   dovecot2Cfg = config.services.dovecot2;
   rspamdCfg   = config.services.rspamd;
+
+  localConfig = pkgs.writeText "local.conf" ''
+    classifier "bayes" {
+      autolearn = true;
+    }
+    spamd {
+      extended_spam_headers = yes;
+    }
+    dns {
+      nameserver = ["[::1]:${toString cfg.localDnsResolverPort}"];
+    }
+  '';
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -32,7 +44,7 @@ in
     services.rspamd = {
       enable = true;
       extraConfig = ''
-        extended_spam_headers = yes;
+        .include(priority=1,duplicate=merge) "${localConfig}"
       '';
 
       workers.rspamd_proxy = {
