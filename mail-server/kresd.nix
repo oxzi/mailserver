@@ -23,9 +23,10 @@ in
   config = lib.mkIf (cfg.enable) {
     services.kresd.enable = true;
 
-    systemd.sockets.kresd.socketConfig.ListenDatagram = [
-      "[::1]:${toString cfg.localDnsResolverPort}"
-    ];
+    systemd.sockets.kresd = rec {
+      listenStreams = [ "[::1]:${toString cfg.localDnsResolverPort}" ];
+      socketConfig.ListenDatagram = listenStreams;
+    };
   };
 }
 
