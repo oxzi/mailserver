@@ -60,6 +60,9 @@ import <nixpkgs/nixos/tests/make-test.nix> {
                 "single-alias@example.com" = "user1@example.com";
                 "multi-alias@example.com" = [ "user1@example.com" "user2@example.com" ];
               };
+
+              rejectSender = [ "rejected-sender@spammer.com" ];
+              rejectRecipients = [ "rejected-recipient@example.com" ];
             };
         };
       client = { nodes, config, pkgs, ... }: let
@@ -126,9 +129,23 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
             imap.close()
         '';
+        test-rejected-sender = pkgs.writeScriptBin "test-rejected-sender" ''
+          #!${pkgs.stdenv.shell}
+          ${pkgs.swaks}/bin/swaks \
+            --server ${serverIP} \
+            --to user1@example.com \
+            --from rejected-sender@spammer.com
+        '';
+        test-rejected-recipient = pkgs.writeScriptBin "test-rejected-recipient" ''
+          #!${pkgs.stdenv.shell}
+          ${pkgs.swaks}/bin/swaks \
+            --server ${serverIP} \
+            --to rejected-recipient@example.com \
+            --from somebody@i.used.to.spam.com
+        '';
       in {
         environment.systemPackages = with pkgs; [
-          fetchmail msmtp procmail findutils grep-ip test-imap-spam test-imap-ham
+          fetchmail msmtp procmail findutils grep-ip test-imap-spam test-imap-ham test-rejected-sender test-rejected-recipient
         ];
         environment.etc = {
           "root/.fetchmailrc" = {
@@ -362,13 +379,15 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       subtest "quota", sub {
           $client->execute("rm ~/mail/*");
-          $client->execute("mv ~/.fetchmailRcLowQuota ~/.fetchmailrc");
+          $client->execute("mv ~/.fetchmailrc ~/.fetchmailrc.bkp");
+          $client->execute("cp ~/.fetchmailRcLowQuota ~/.fetchmailrc");
 
           $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < /etc/root/email2 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
           $client->fail("fetchmail -v");
 
+          $client->execute("mv ~/.fetchmailrc.bkp ~/.fetchmailrc");
       };
 
       subtest "imap sieve junk trainer", sub {
@@ -390,5 +409,14 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           $server->fail("journalctl -u dovecot2 | grep -i warning >&2");
       };
 
+      subtest "reject message from rejectSender", sub {
+          $client->execute("test-rejected-sender");
+          $server->succeed("journalctl -u postfix | grep '<rejected-sender\@spammer.com>: Sender address rejected: Access denied' >&2");
+      };
+
+      subtest "reject message to rejectRecipients", sub {
+          $client->execute("test-rejected-recipient");
+          $server->succeed("journalctl -u postfix | grep '<rejected-recipient\@example.com>: Recipient address rejected: Access denied' >&2");
+      };
     '';
 }
