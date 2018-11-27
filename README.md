@@ -2,11 +2,11 @@
 
 *Very simple NixOS-based mailserver*
 
-This repository contains a hard fork of the [Simple Nixos Mailserver][snm],
-which was initially created to maintain my private mailserver. Some
-*non mailserver-related* options were removed and other options may differ.
+This repository contains a hard fork of the [Simple Nixos Mailserver][snm]
+initially created to maintain my private mailserver. Some *non
+mailserver-related* options were removed and other options may differ.
 
-Most of the work was done by Robin Raymond and
+Most of the work was done by Robin Raymond and the
 [Simple Nixos Mailserver's][snm] contributors - thanks a million!
 
 Use this fork at your own risk!
@@ -32,13 +32,13 @@ Use this fork at your own risk!
     # Generate password: mkpasswd -m sha-512
     loginAccounts = {
       "user@example.com" = {
-        hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
+        hashedPassword = "…";
 
         aliases = [ "postmaster@example.com" ];
         catchAll = [ "example2.com" ];
       };
       "user2@example.com" = {
-        hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
+        hashedPassword = "…";
 
         sieveScript = ''
            require ["fileinto"];
@@ -59,7 +59,7 @@ Use this fork at your own risk!
 
     rejectSender = [ "rejected-sender@spammer.com" ];
     rejectRecipients = [ "rejected-recipient@example.com" ];
-  }
+  };
 }
 ```
 
