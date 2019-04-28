@@ -56,7 +56,7 @@ in
           group = rspamdCfg.group;
         }];
 
-        type = "proxy";
+        type = "rspamd_proxy";
         count = 4;  # Spawn more processes in self-scan mode
         extraConfig = ''
           milter = yes; # Enable milter mode
