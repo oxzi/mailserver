@@ -37,10 +37,6 @@ let
 in
 {
   config = with cfg; lib.mkIf enable {
-    # rmilter is enabled if rspamd is enabled. However, rmilter is deprecated
-    # https://github.com/NixOS/nixpkgs/issues/48011
-    services.rmilter.enable = false;
-
     services.rspamd = {
       enable = true;
       extraConfig = ''
